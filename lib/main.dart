@@ -1,10 +1,11 @@
 
 import 'package:fijjo_multiplatform/signIn.dart';
+import 'package:fijjo_multiplatform/signUp.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 
 void main() {
-  runApp(Login());
+  runApp((Login()));
 }
 
 class MyApp extends StatefulWidget {
