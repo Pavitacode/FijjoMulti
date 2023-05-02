@@ -1,11 +1,18 @@
 
+import 'dart:io';
+
+import 'package:fijjo_multiplatform/Functions/IAAssistant.dart';
 import 'package:fijjo_multiplatform/signIn.dart';
 import 'package:fijjo_multiplatform/signUp.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
+import 'dart:convert';
 
 void main() {
-  runApp((Login()));
+  
+   runApp((Assistant()));
+
+
 }
 
 class MyApp extends StatefulWidget {
