@@ -1,5 +1,7 @@
 import 'package:fijjo_multiplatform/signUp.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Login extends StatelessWidget {
   const Login({Key? key}) : super(key: key);
@@ -28,7 +30,22 @@ class MyStatefulWidget extends StatefulWidget {
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  List userData = [];
+  Future<List> Login(String credential,String password) async {
+  try {
+  var url = Uri.parse('https://disbackend.onrender.com/LOGIN/');
+  var body = json.encode({'credential': credential, 'password': password});
+  var response = await http.post(url, body: body);
+  print('Response status: ${response.statusCode}');
+  final responseFinal = json.decode(utf8.decode(response.bodyBytes));
+  print('Response body: ${responseFinal['message']}');
+  return responseFinal;
 
+  } catch (e) {
+    return ['Error al realizar la peticion con el servidor'];
+  }
+  
+  }
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -90,6 +107,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                         () {
                   print(nameController.text);
                   print(passwordController.text);
+                  Login(nameController.text,passwordController.text);
                 }),
           ),
           Row(children:
