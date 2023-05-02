@@ -169,7 +169,8 @@ Stepper(
               ),
               keyboardType: TextInputType.phone,
               initialValue: _phoneNumber,
-              onSaved: (value) =>_phoneNumber = value!.completeNumber.toString() ,
+              onSaved: (value) {_phoneNumber = value!.completeNumber.toString();
+              setState(() =>isSendMsg = false); },
               onChanged: (value) { value.completeNumber.toString();
               setState(() =>isSendMsg = false);
                },
