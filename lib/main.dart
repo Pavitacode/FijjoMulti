@@ -6,16 +6,46 @@ import 'package:fijjo_multiplatform/signIn.dart';
 import 'package:fijjo_multiplatform/signUp.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
+import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+
+
+
+Future<List> getDataUser(String id) async {
+  try {
+  var url = Uri.parse('https://disbackend.onrender.com/getUserData/');
+  var body = json.encode({'id': id});
+  var response = await http.post(url, body: body);
+  print('Response status: ${response.statusCode}');
+  final responseFinal = json.decode(utf8.decode(response.bodyBytes));
+  print('Response body: ${responseFinal['data']}');
+  return [responseFinal];
+
+  } catch (e) {
+    return ['Error al realizar la peticion con el servidor'];
+  }
   
-   runApp((Assistant()));
+}
+
+
+void main() async{
+  
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? userId = prefs.getString('userId');
+  List data = [];
+  if (userId != null) data =  await getDataUser(userId);
+  runApp(userId == null ? Login() : MyApp(data: data,));
 
 
 }
 
 class MyApp extends StatefulWidget {
+  final List data;
+
+  MyApp({Key? key, required this.data}) : super(key: key);
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -56,9 +86,16 @@ class _MyAppState extends State<MyApp> {
             ),
             TextButton(
               child: Text("Confirmar"),
-              onPressed: () {
+              onPressed: () async{
                 Navigator.of(context).pop();
-                // Aquí puedes agregar el código para cerrar sesión
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.remove('userId');
+                 Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Login(),
+                        ),
+                      );
               },
             ),
           ],
@@ -117,8 +154,8 @@ class _MyAppState extends State<MyApp> {
                 padding: EdgeInsets.zero,
                 children: <Widget>[
                   UserAccountsDrawerHeader(
-                    accountName: Text("Nombre de usuario"),
-                    accountEmail: Text("usuario@ejemplo.com"),
+                    accountName: Text(widget.data[0]['data']['userName']),
+                    accountEmail: Text(widget.data[0]['data']['email'] == '' ? widget.data[0]['data']['phone'] : widget.data[0]['data']['email']),
                     currentAccountPicture: CircleAvatar(
                       backgroundColor:
                           Theme.of(context).platform == TargetPlatform.iOS

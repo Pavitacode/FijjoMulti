@@ -39,6 +39,7 @@ dependencies:
   country_codes: ^2.0.1
   pin_code_fields: ^7.4.0
   animated_text_kit: ^4.2.2
+  shared_preferences: ^2.1.0
  
 
 

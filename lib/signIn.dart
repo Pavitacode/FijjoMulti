@@ -1,5 +1,9 @@
+import 'package:fijjo_multiplatform/main.dart';
 import 'package:fijjo_multiplatform/signUp.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatelessWidget {
   const Login({Key? key}) : super(key: key);
@@ -27,14 +31,36 @@ class MyStatefulWidget extends StatefulWidget {
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   TextEditingController nameController = TextEditingController();
+  String password = '';
+  String credential = '';
+  String? usernameError;
+  String? passwordError;
+  
+  final _formKey1 = GlobalKey<FormState>();
   TextEditingController passwordController = TextEditingController();
+  List userData = [];
+  Future<List> loginPost(String credential,String password) async {
+  try {
+  var url = Uri.parse('https://disbackend.onrender.com/SignIn/');
+  var body = json.encode({'credential': credential, 'password': password,"isRegister":false});
+  var response = await http.post(url, body: body);
+  print('Response status: ${response.statusCode}');
+  final responseFinal = json.decode(utf8.decode(response.bodyBytes));
+  print('Response body: ${responseFinal['data']}');
+  return [responseFinal];
 
+  } catch (e) {
+    return ['Error al realizar la peticion con el servidor'];
+  }
+  
+  }
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10),
-      child: ListView(
+      child: Form(key: _formKey1,child: ListView(
         children: <Widget>[
+          
           Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.all(10),
@@ -52,26 +78,51 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 'Sign in',
                 style: TextStyle(fontSize: 20),
               )),
+
+              
           Container(
             padding: const EdgeInsets.all(10),
-            child: TextField(
+            child: TextFormField(
               controller: nameController,
-              decoration: const InputDecoration(
+              decoration:  InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'User Name',
-  
+                labelText: 'Email/Phone or Username',
+
+               errorText: usernameError,
               ),
+
+              validator: (value) {
+              if (value == null || value.isEmpty) {
+                  return 'Please enter your Email/Phone or Username';
+                            }
+                            return null;
+
+                          },
+                          onSaved: (value) => credential = value.toString(),
             ),
           ),
           Container(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-            child: TextField(
-              obscureText: true,
-              controller: passwordController,
-              decoration: const InputDecoration(
+            child: TextFormField(
+                decoration: InputDecoration(
+  
                 border: OutlineInputBorder(),
                 labelText: 'Password',
+                errorText: passwordError,
+  
               ),
+                  obscureText: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your password';
+                            }
+
+                            return null;
+
+
+                          },
+                          onSaved: (value) => password = value.toString(),
+
             ),
           ),
           TextButton(
@@ -87,9 +138,40 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             child:
                 ElevatedButton(child:
                     const Text('Login'), onPressed:
-                        () {
-                  print(nameController.text);
-                  print(passwordController.text);
+                        () async {
+                  passwordError = null;
+                  usernameError = null;
+                if (_formKey1.currentState!.validate()){
+
+                _formKey1.currentState!.save();
+                  print(credential);
+                  print(password);
+                  List data = await loginPost(credential,password);
+                  print(data[0]['data']['userName']);
+                  String id  = data[0]['data']['_id'] == null ? "" : data[0]['data']['_id'] ;
+                  print(data[0]['isError']);
+                  if (data[0]['isError'] == false){
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    await prefs.setString('userId', id);
+
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MyApp(data: data),
+                        ),
+                      );
+                  }
+
+                 else {
+                  setState(() {
+                    if (data[0]['typeError'] == 'username') {
+                      usernameError = 'Invalid Email/Phone or Username';
+                    } else if (data[0]['typeError'] == 'password') {
+                      passwordError = 'Invalid Password';
+                    }
+                  });
+                }
+                  }
                 }),
           ),
           Row(children:
@@ -111,6 +193,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               MainAxisAlignment.center)
         ],
       ),
-    );
+    ),);
   }
 }
