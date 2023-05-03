@@ -1,22 +1,13 @@
-
-
-
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:country_codes/country_codes.dart';
-
-
 import 'Functions/VerificationCode.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'main.dart';
-
 
 
 
@@ -38,10 +29,13 @@ class _SignUpFormState extends State<SignUpForm> {
 bool isTagExistEmail = false;
 bool isTagExistPhone = false;
 bool isTagExistuserName = false;
+String? errorCodeText ;
+String? errorCodeTextEmail;
   int _clickResend = 0;
   late Timer _timer;
   int clickContinue = 0;
   bool isLoadingEmail = false;
+   bool isLoadingPhone = false;
   int click = 0;
   bool isSendMsg = false;
   String _name = '';
@@ -88,6 +82,22 @@ void initState() {
   }
   
   }
+
+   Future<bool> userExist(String credential,String typeCredential ) async {
+  print(credential);
+
+  var url = Uri.parse('https://disbackend.onrender.com/ConfirmUserNoExist/');
+  var body = json.encode({'typeCredential':typeCredential,'credential': credential});
+  var response = await http.post(url, body: body);
+  print('Response status: ${response.statusCode}');
+  final responseFinal = json.decode(utf8.decode(response.bodyBytes));
+  print('Response body: ${responseFinal}');
+   return responseFinal;
+  
+
+  }
+
+
 
 
   @override
@@ -202,6 +212,7 @@ else if (_currentPage == 3){
                 keyboardType: TextInputType.emailAddress,
               
                 decoration:  InputDecoration(
+                  errorText: errorCodeTextEmail,
                 suffix: isLoadingEmail ? SizedBox( width: 18.0, height: 18.0,  child: CircularProgressIndicator(strokeWidth: 2.0,), ): isTagExistEmail && !isLoadingEmail ? Icon(Icons.close, color: Colors.red, size:18.0) : 
                 Icon(Icons.check, color: Colors.green, size:18.0),
                 border: OutlineInputBorder(),
@@ -214,12 +225,6 @@ else if (_currentPage == 3){
                               return 'Please enter your email';
                             }
 
-                          final RegExp emailRegex = RegExp(
-                            r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                          );
-                          if (!emailRegex.hasMatch(value)) {
-                            return 'Please enter a valid email';
-                          }
                             return null;
 
 
@@ -227,27 +232,53 @@ else if (_currentPage == 3){
                           onSaved: (value) {email = value.toString(); 
                            setState(() =>isSendMsg = false);
                           },
-                           onChanged: (value) { email = value.toString();
-                           isLoadingEmail = true;
-              setState(() =>isSendMsg = false);
+                           onChanged: (value) async { email = value.toString();
+                          bool tmp = await userExist(email.trim().toLowerCase(),"email");
+                          bool tmp2 = false;
+                          
+                          final RegExp emailRegex = RegExp(
+                            r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                          );
+                          if (!emailRegex.hasMatch(value)) {
+                              tmp2 = true;
+                          }
+                 setState(() {  isLoadingEmail = true;
+                           isTagExistEmail = tmp || tmp2 ? true : false;
+                           isLoadingEmail = false;  
+
+                           });
                },
                         ) :  IntlPhoneField(           
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
+                errorText : errorCodeText,
+                                suffix: isLoadingPhone ? SizedBox( width: 18.0, height: 18.0,  child: CircularProgressIndicator(strokeWidth: 2.0,), ): isTagExistPhone && !isLoadingPhone ? Icon(Icons.close, color: Colors.red, size:18.0) : 
+                Icon(Icons.check, color: Colors.green, size:18.0),
                 border: OutlineInputBorder(),
                 labelText: 'PhoneNumber',
               ),
               keyboardType: TextInputType.phone,
               initialValue: _phoneNumber,
+              // validator : (value) {
+
+              //   if ()
+
+              //   return "";
+              // } 
+              // ,
               onSaved: (value) =>_phoneNumber = value!.completeNumber.toString() ,
-              onChanged: (value) { value.completeNumber.toString();
-              setState(() =>isSendMsg = false);
+              onChanged: (value) async { value.completeNumber.toString();
+
+               bool tmp = await userExist(value.completeNumber.trim().toLowerCase(),"phone");
+                bool tmp2 = false;
+  
+              setState(() {isSendMsg = false;
+                            isLoadingPhone = true;
+                           isTagExistPhone = tmp || tmp2 ? true : false;
+                           isLoadingPhone= false;  
+                });
+            
                },
-              validator: (value) {
-                if (value == null || value.completeNumber.isEmpty) {
-                  return 'Por favor ingresa un número de teléfono';
-                }
-                return null;
-              },         ),), TextButton(
+         ),), TextButton(
   onPressed: () {
     setState(() => registerWithCorreo = !registerWithCorreo);
   },
