@@ -41,7 +41,7 @@ bool isTagExistuserName = false;
   int _clickResend = 0;
   late Timer _timer;
   int clickContinue = 0;
-  bool isLoading = false;
+  bool isLoadingEmail = false;
   int click = 0;
   bool isSendMsg = false;
   String _name = '';
@@ -228,7 +228,7 @@ else if (_currentPage == 3){
                            setState(() =>isSendMsg = false);
                           },
                            onChanged: (value) { email = value.toString();
-                           isLoading = true;
+                           isLoadingEmail = true;
               setState(() =>isSendMsg = false);
                },
                         ) :  IntlPhoneField(           
@@ -238,9 +238,7 @@ else if (_currentPage == 3){
               ),
               keyboardType: TextInputType.phone,
               initialValue: _phoneNumber,
-              onSaved: (value) {_phoneNumber = value!.completeNumber.toString();
-              setState(() =>isSendMsg = false);
-               } ,
+              onSaved: (value) =>_phoneNumber = value!.completeNumber.toString() ,
               onChanged: (value) { value.completeNumber.toString();
               setState(() =>isSendMsg = false);
                },

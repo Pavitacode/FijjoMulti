@@ -3,7 +3,10 @@ import 'package:fijjo_multiplatform/signUp.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+<<<<<<< HEAD
 import 'package:shared_preferences/shared_preferences.dart';
+=======
+>>>>>>> 24f2173da8fa50d13d9e31d44ea227f6f5820513
 
 class Login extends StatelessWidget {
   const Login({Key? key}) : super(key: key);
@@ -39,6 +42,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   final _formKey1 = GlobalKey<FormState>();
   TextEditingController passwordController = TextEditingController();
   List userData = [];
+<<<<<<< HEAD
   Future<List> loginPost(String credential,String password) async {
   try {
   var url = Uri.parse('https://disbackend.onrender.com/SignIn/');
@@ -48,6 +52,17 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   final responseFinal = json.decode(utf8.decode(response.bodyBytes));
   print('Response body: ${responseFinal['data']}');
   return [responseFinal];
+=======
+  Future<List> Login(String credential,String password) async {
+  try {
+  var url = Uri.parse('https://disbackend.onrender.com/LOGIN/');
+  var body = json.encode({'credential': credential, 'password': password});
+  var response = await http.post(url, body: body);
+  print('Response status: ${response.statusCode}');
+  final responseFinal = json.decode(utf8.decode(response.bodyBytes));
+  print('Response body: ${responseFinal['message']}');
+  return responseFinal;
+>>>>>>> 24f2173da8fa50d13d9e31d44ea227f6f5820513
 
   } catch (e) {
     return ['Error al realizar la peticion con el servidor'];
@@ -138,6 +153,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             child:
                 ElevatedButton(child:
                     const Text('Login'), onPressed:
+<<<<<<< HEAD
                         () async {
                   passwordError = null;
                   usernameError = null;
@@ -172,6 +188,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   });
                 }
                   }
+=======
+                        () {
+                  print(nameController.text);
+                  print(passwordController.text);
+                  Login(nameController.text,passwordController.text);
+>>>>>>> 24f2173da8fa50d13d9e31d44ea227f6f5820513
                 }),
           ),
           Row(children:
