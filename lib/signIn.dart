@@ -4,17 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Functions/countries.dart';
+import 'Functions/phoneField.dart';
+
 
 class Login extends StatelessWidget {
   const Login({Key? key}) : super(key: key);
 
-  static const String _title = 'Sample App';
+  static const String _title = 'SignIn';
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: _title,
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(title: const Text(_title)),
         body: const MyStatefulWidget(),
       ),
@@ -34,14 +38,21 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   String password = '';
   String credential = '';
   String? usernameError;
+  String? errorCodeText;
+  String _phoneNumber = '';
+  static const _initialCountryCode = 'US';
+    var _country =
+       countries.firstWhere((element) => element.code == _initialCountryCode);
+  bool traditionalLogin = true;
   String? passwordError;
+  bool _obscureText = true;
   
   final _formKey1 = GlobalKey<FormState>();
   TextEditingController passwordController = TextEditingController();
   List userData = [];
   Future<List> loginPost(String credential,String password) async {
   try {
-  var url = Uri.parse('https://disbackend.onrender.com/SignIn/');
+  var url = Uri.parse('https://disbackend.onrender.com/SignInandSignUp/');
   var body = json.encode({'credential': credential, 'password': password,"isRegister":false});
   var response = await http.post(url, body: body);
   print('Response status: ${response.statusCode}');
@@ -56,38 +67,36 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   }
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Form(key: _formKey1,child: ListView(
-        children: <Widget>[
-          
-          Container(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.all(10),
-              child: const Text(
-                'FIJJO',
-                style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 30),
-              )),
-          Container(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.all(10),
-              child: const Text(
-                'Sign in',
-                style: TextStyle(fontSize: 20),
-              )),
+    return 
+    Center(
+  child:  Form(
+    key: _formKey1,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+   
 
-              
-          Container(
+        
+         Container(
+         
             padding: const EdgeInsets.all(10),
-            child: TextFormField(
+            child: traditionalLogin ?   TextFormField(
+              autovalidateMode:AutovalidateMode.onUserInteraction  ,
               controller: nameController,
               decoration:  InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Email/Phone or Username',
+           
+                labelText: 'Email/Username',
+ prefixIcon: Icon(Icons.email),
+    // Usar un borde redondeado para el campo
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+    // Usar un estilo de texto personalizado para la etiqueta
 
+    labelStyle: TextStyle(color: Colors.blue, fontSize: 16.0),
+    // Usar un estilo de texto personalizado para el texto de error
+    errorStyle: TextStyle(color: Colors.red, fontSize: 12.0),
+    // Usar un color de relleno para el campo
+    fillColor: Colors.grey[200],
+    filled: true,
                errorText: usernameError,
               ),
 
@@ -99,19 +108,95 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
                           },
                           onSaved: (value) => credential = value.toString(),
-            ),
+            ) : 
+            IntlPhoneField(           
+                decoration: InputDecoration(
+                   prefixIcon: Icon(Icons.email),
+    // Usar un borde redondeado para el campo
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+              // Usar un estilo de texto personalizado para la etiqueta
+              labelStyle: TextStyle(color: Colors.blue, fontSize: 16.0),
+              // Usar un estilo de texto personalizado para el texto de error
+              errorStyle: TextStyle(color: Colors.red, fontSize: 12.0),
+              // Usar un color de relleno para el campo
+              fillColor: Colors.grey[200],
+              filled: true,
+                errorText : errorCodeText,
+        
+                labelText: 'PhoneNumber',
+              ),
+              keyboardType: TextInputType.phone,
+              initialValue: _phoneNumber,
+            
+              onSaved: (value) async {credential = value!.completeNumber.toString();
+              },
+
+
+              onCountryChanged: (country) => _country = country  ,
+
+              onChanged: (value) async { 
+                
+                errorCodeText = null;
+               credential = value.completeNumber.toString();
+              
+
+               },
+
+            validator: (value) {
+                                      print("test: $value");
+        if ( value != null) {
+          return value.number.length >= _country.minLength &&
+                  value.number.length <= _country.maxLength
+              ? null
+              : "Numero invalido";
+        }
+
+
+
+        return null;
+      },
+
+
+         ),),
+             
+          TextButton(
+            onPressed: () {
+              setState(() {
+                traditionalLogin = !traditionalLogin;
+              });
+            },
+            child:
+                 Text(traditionalLogin ? 'Iniciar sesion con el numero de celular' : 'Iniciar sesion con los metodos tradicionales', style: TextStyle(fontSize: 15)),
           ),
-          Container(
+
+Container(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: TextFormField(
                 decoration: InputDecoration(
   
-                border: OutlineInputBorder(),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+    // Usar un estilo de texto personalizado para la etiqueta
+
+    labelStyle: TextStyle(color: Colors.blue, fontSize: 16.0),
+    // Usar un estilo de texto personalizado para el texto de error
+    errorStyle: TextStyle(color: Colors.red, fontSize: 12.0),
+    // Usar un color de relleno para el campo
+    fillColor: Colors.grey[200],
+    filled: true,
                 labelText: 'Password',
                 errorText: passwordError,
-  
-              ),
-                  obscureText: true,
+                  prefixIcon: Icon(Icons.lock,),
+                   suffixIcon: IconButton(
+        icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+        onPressed: () {
+          setState(() {
+            _obscureText = !_obscureText;
+          });
+        },
+      ),
+        ),
+        obscureText: _obscureText,
+         
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your password';
@@ -130,14 +215,25 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               //forgot password screen
             },
             child:
-                const Text('Forgot Password', style: TextStyle(fontSize: 15)),
+                const Text('Forgot Password?', style: TextStyle(fontSize: 15)),
           ),
           Container(
             height: 50,
+            width: 500,
             padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
             child:
                 ElevatedButton(child:
-                    const Text('Login'), onPressed:
+
+                    const Text('Login'), 
+                      style: ElevatedButton.styleFrom(
+                primary: Colors.blue,
+                onPrimary: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(32.0),
+                ),
+              ),
+                     onPressed:
+
                         () async {
                   passwordError = null;
                   usernameError = null;
@@ -191,8 +287,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             }),
           ], mainAxisAlignment:
               MainAxisAlignment.center)
-        ],
-      ),
-    ),);
+      ],
+    ),
+  ),
+);
   }
 }
