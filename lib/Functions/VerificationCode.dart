@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:fijjo_multiplatform/signUp.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+
 
 
 class Post {
@@ -36,14 +38,27 @@ class _VerificationCodeActivityState extends State<VerificationCodeActivity> {
 bool _isLoading = true;
 String responseIsEmail = '';
 
-    void sendSms(String phoneNumber, String email) async {
-  var url = Uri.parse('https://disbackend.onrender.com/OtpSmsSend/');
-  var body = json.encode({'number': phoneNumber, 'email': email, 'isEmailRegister': widget.isEmailRegister});
-  var response = await http.post(url, body: body);
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
-  if (widget.isEmailRegister) responseIsEmail = response.body;
+
+  TextEditingController pinCode = TextEditingController();
+  String _comingSms = 'Unknown';
+
+
+
+  void sendSms(String phoneNumber, String email) async {
+    var url = Uri.parse('https://disbackend.onrender.com/OtpSmsSend/');
+    var body = json.encode({
+      'number': phoneNumber,
+      'email': email,
+      'isEmailRegister': widget.isEmailRegister
+    });
+    var response = await http.post(url, body: body);
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+    if (widget.isEmailRegister)
+      responseIsEmail = response.body;
+
   }
+
 
 
   Future<bool> verifySms(String phoneNumber, String codeOtp) async {
@@ -102,7 +117,9 @@ String responseIsEmail = '';
             Container(
             padding: const EdgeInsets.all(10),
               child:  PinCodeTextField(  
+            keyboardType: TextInputType.number,
             appContext: context,
+            controller: pinCode,
             length: 6,
             animationType: AnimationType.fade,
             pinTheme: PinTheme(
@@ -113,7 +130,8 @@ String responseIsEmail = '';
                 inactiveColor: Colors.blue),
             animationDuration: Duration(milliseconds: 300),
             errorAnimationController: errorController,
-
+            
+        
               onChanged: (value) {
                 setState(() {
                   

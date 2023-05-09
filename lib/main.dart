@@ -1,14 +1,20 @@
 
 import 'dart:io';
 
+import 'package:fijjo_multiplatform/Functions/FilePicker.dart';
 import 'package:fijjo_multiplatform/Functions/IAAssistant.dart';
 import 'package:fijjo_multiplatform/signIn.dart';
 import 'package:fijjo_multiplatform/signUp.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+
+
+import 'Functions/GetPosts.dart';
+import 'Functions/Posts/postPagination.dart';
 
 
 
@@ -31,13 +37,17 @@ Future<List> getDataUser(String id) async {
 
 
 void main() async{
-  
+  PostList postList = PostList();
+
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? userId = prefs.getString('userId');
+  print(userId);
+  postList.myString = userId.toString();
   List data = [];
   if (userId != null) data =  await getDataUser(userId);
-  runApp(userId == null ? Login() : MyApp(data: data,));
+  print(data);
+  runApp(userId == null ? Login() : MyApp(data: data));
 
 
 }
@@ -54,13 +64,17 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
+
+  List<dynamic> _posts = [];
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  static final List<Widget> _widgetOptions = <Widget>[
+
+
+    final List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
+    BlogsScreens(),
     HotelScreen(),
     FlightScreen(),
-    ProfileScreen(),
     SettingsScreen(),
   ];
 
@@ -69,6 +83,7 @@ class _MyAppState extends State<MyApp> {
       _selectedIndex = index;
     });
   }
+
 
     void _showLogoutDialog(BuildContext context) {
     showDialog(
@@ -109,9 +124,13 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Travel App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
+        canvasColor: Colors.black
+        
+      
       ),
       home: Scaffold(
+      
         key: _scaffoldKey,
         body: SafeArea(
           child: Stack(
@@ -123,7 +142,7 @@ class _MyAppState extends State<MyApp> {
                 top: 0,
                 left: 0,
                 child: IconButton(
-                  icon: Icon(Icons.menu),
+                  icon: Icon(Icons.menu, color:Colors.white),
                   onPressed: () => _scaffoldKey.currentState?.openDrawer(),
                 ),
               ),
@@ -131,15 +150,17 @@ class _MyAppState extends State<MyApp> {
                 top: 0,
                 right: 0,
                 child: IconButton(
-                  icon: Icon(Icons.notifications),
+                  icon: Icon(Icons.notifications, color:Colors.white,),
                   onPressed: () {},
                 ),
               ),
             ],
           ),
         ),
-        drawer: Drawer(
+        drawer:   Drawer(
+          backgroundColor: Colors.black,
           child: PageTransitionSwitcher(
+            
             transitionBuilder:
                 (child, primaryAnimation, secondaryAnimation) =>
                     SharedAxisTransition(
@@ -149,6 +170,7 @@ class _MyAppState extends State<MyApp> {
               transitionType: SharedAxisTransitionType.horizontal,
             ),
             child: Builder(
+  
               builder: (context) => ListView(
                 key: ValueKey(_selectedIndex),
                 padding: EdgeInsets.zero,
@@ -162,51 +184,52 @@ class _MyAppState extends State<MyApp> {
                               ? Colors.blue
                               : Colors.white,
                       child: Text(
-                        "U",
+                        widget.data[0]['data']['userName'].substring(0, 1),
                         style: TextStyle(fontSize: 40.0),
                       ),
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.home),
-                    title: Text('Home'),
+                    
+                    leading: Icon(Icons.home,color:Colors.white),
+                    title: Text('Home', style: TextStyle(color:Colors.white),),
                     onTap: () {
                       _onItemTapped(0);
                       Navigator.pop(context);
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.hotel),
-                    title: Text('Hotels'),
+                    leading: Icon(Icons.chrome_reader_mode,color:Colors.white),
+                    title: Text('Blogs',style: TextStyle(color:Colors.white),),
                     onTap: () {
                       _onItemTapped(1);
                       Navigator.pop(context);
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.flight),
-                    title: Text('Flights'),
+                    leading: Icon(Icons.hotel,color: Colors.white),
+                    title: Text('Hotels',style: TextStyle(color:Colors.white)),
                     onTap: () {
                       _onItemTapped(2);
                       Navigator.pop(context);
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.person),
-                    title: Text('Profile'),
+                    leading: Icon(Icons.flight,color: Colors.white),
+                    title: Text('Flights',style: TextStyle(color:Colors.white)),
                     onTap: () {
                       _onItemTapped(3);
                       Navigator.pop(context);
                     },
                   ),
-                  Divider(),
+                  Divider(color: Colors.white,thickness:2),
                   ListTile(
                     leading:
                         Icon(Icons.settings, color:
-                        Theme.of(context).textTheme.caption?.color),
+                        Colors.white),
                     title:
-                        Text('Settings', style:
-                        Theme.of(context).textTheme.caption),
+                        Text('Settings', style: TextStyle(color: Colors.white)
+                      ),
                     onTap:
                         () {
                            _onItemTapped(4);
@@ -216,10 +239,10 @@ class _MyAppState extends State<MyApp> {
                   ListTile(
                     leading:
                         Icon(Icons.logout, color:
-                        Theme.of(context).textTheme.caption?.color),
+                        Colors.white,),
                     title:
                         Text('Logout', style:
-                        Theme.of(context).textTheme.caption),
+                        TextStyle(color: Colors.white)),
                     onTap:
                         () {
          Navigator.pop(context);
@@ -236,36 +259,179 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
+class BlogsScreens extends StatefulWidget {
+  @override
+  _BlogScreenState createState() => _BlogScreenState();
+}
 
-class HomeScreen extends StatelessWidget {
-  final List<String> images = [
-    'https://www.example.com/image1.jpg',
-    'https://www.example.com/image2.jpg',
-    'https://www.example.com/image3.jpg',
-  ];
+class _BlogScreenState extends State<BlogsScreens> {
+
+void _pickFiles() async {
+  // Muestra el visualizador de archivos personalizado
+  List<File> selectedFiles = await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ImagePickerPage(),
+    ),
+  );
+
+  if (selectedFiles != null) {
+    // Aquí puedes procesar los archivos seleccionados
+  } else {
+    // El usuario canceló la selección de archivos
+  }
+}
+
+  final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
+    PostsPage? _postsPage;
+    @override
+  void initState() {
+    
+    super.initState();
+   _postsPage = PostsPage();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              itemCount: images.length,
-              itemBuilder: (context, index) {
-                return Image.network(images[index]);
-              },
+
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.black,
+          body:  ValueListenableBuilder<int>(
+            valueListenable: _currentIndex,
+            builder: (context, value, child) {
+              switch (value) {
+                case 0:
+                  return Center(child:  ElevatedButton(
+  onPressed: () {
+_pickFiles();
+  } ,
+  child: Text('Seleccionar archivos'),
+));
+                case 1:
+                  return Center(child: _postsPage);
+                case 2:
+                  return Center(child: Text("GlobalBlog", style: TextStyle(color: Colors.white),));
+                default:
+                  return Container();
+              }
+            },
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: CustomBottomNavigationBar(
+            currentIndex: _currentIndex,
+          ),
+        ),
+      ],
+    );
+  }
+  
+
+}
+
+class CustomBottomNavigationBar extends StatefulWidget {
+   final ValueNotifier<int> currentIndex;
+
+  const CustomBottomNavigationBar({Key? key, required this.currentIndex})
+      : super(key: key);
+
+  @override
+  _CustomBottomNavigationBarState createState() =>
+      _CustomBottomNavigationBarState();
+}
+
+
+class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
+ 
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 80,
+      alignment: Alignment.bottomCenter,
+        child: Center(
+          child: Container(
+            width: 250,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, -3),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.people),
+                  onPressed: () {
+                    setState(() {
+                     widget.currentIndex.value = 1;
+                    });
+                  },
+                  color: widget.currentIndex.value == 1 ? Colors.blue : Colors.grey,
+                ),
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: Offset(0, -3),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      setState(() {
+                        widget.currentIndex.value = 0;
+                      });
+                    },
+                    color: Colors.white,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.public),
+                  onPressed: () {
+                    setState(() {
+                      widget.currentIndex.value = 2;
+                    });
+                  },
+                  color:widget.currentIndex.value == 2 ? Colors.blue : Colors.grey,
+                ),
+              ],
             ),
           ),
-          Text(
-            'Welcome to our Travel App!',
-            style: TextStyle(fontSize: 24),
-          ),
-          Text(
-            'Plan your next trip with us',
-            style: TextStyle(fontSize: 18),
-          ),
-        ],
+        ),
+      );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: Text('Home Screen', style: TextStyle(color: Colors.white),),
       ),
     );
   }
@@ -275,8 +441,9 @@ class HotelScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Center(
-        child: Text('Hotels Screen'),
+        child: Text('Hotels Screen', style: TextStyle(color: Colors.white),),
       ),
     );
   }
@@ -286,8 +453,9 @@ class FlightScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Center(
-        child: Text('Flights Screen'),
+        child: Text('Flights Screen', style: TextStyle(color: Colors.white),),
       ),
     );
   }
@@ -297,8 +465,9 @@ class  SettingsScreen extends StatelessWidget{
     @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Center(
-        child: Text('Settings'),
+        child: Text('Settings', style: TextStyle(color: Colors.white),),
       ),
     );
   }
@@ -308,8 +477,9 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Center(
-        child: Text('Profile Screen'),
+        child: Text('Profile Screen', style: TextStyle(color: Colors.white),),
       ),
     );
   }
