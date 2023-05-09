@@ -1,20 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-<<<<<<< HEAD
-import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:country_codes/country_codes.dart';
-=======
->>>>>>> 67350e2 (Muchos cambios)
 import 'Functions/VerificationCode.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-<<<<<<< HEAD
-=======
 import 'Functions/countries.dart';
 import 'Functions/phoneField.dart';
->>>>>>> 67350e2 (Muchos cambios)
 import 'main.dart';
 
 
@@ -41,22 +33,15 @@ bool isTagExistEmail = false;
 bool isTagExistPhone = false;
 bool isTagExistuserName = false;
 String? errorCodeText ;
-<<<<<<< HEAD
-String? errorCodeTextEmail;
-=======
 bool isBadFormattedEmail = false;
 String? errorCodeTextEmail;
 String? errorCodeTextUserName;
->>>>>>> 67350e2 (Muchos cambios)
   int _clickResend = 0;
   late Timer _timer;
 bool isPasswordAccepted = false;
   int clickContinue = 0;
   bool isLoadingEmail = false;
-<<<<<<< HEAD
-=======
   bool isLoadingUserName = false;
->>>>>>> 67350e2 (Muchos cambios)
    bool isLoadingPhone = false;
   int click = 0;
 String? errorCodeTextPassword;
@@ -165,11 +150,7 @@ String evaluatePasswordStrength(String password)  {
   var response = await http.post(url, body: body);
   print('Response status: ${response.statusCode}');
   final responseFinal = json.decode(utf8.decode(response.bodyBytes));
-<<<<<<< HEAD
-  print('Response body: ${responseFinal}');
-=======
   print('Response body: $responseFinal');
->>>>>>> 67350e2 (Muchos cambios)
    return responseFinal;
   
 
@@ -272,7 +253,7 @@ Stepper(
                         SharedPreferences prefs = await SharedPreferences.getInstance();
                             await prefs.setString('userId', id);
 
-                  Navigator.push(
+                  Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => MyApp(data: data),
@@ -334,54 +315,6 @@ controlsBuilder: (BuildContext context, ControlsDetails details) {
 
             Container(
             padding: const EdgeInsets.all(10),
-<<<<<<< HEAD
-              child: registerWithCorreo ? TextFormField(  
-                keyboardType: TextInputType.emailAddress,
-              
-                decoration:  InputDecoration(
-                  errorText: errorCodeTextEmail,
-                suffix: isLoadingEmail ? SizedBox( width: 18.0, height: 18.0,  child: CircularProgressIndicator(strokeWidth: 2.0,), ): isTagExistEmail && !isLoadingEmail ? Icon(Icons.close, color: Colors.red, size:18.0) : 
-                Icon(Icons.check, color: Colors.green, size:18.0),
-                border: OutlineInputBorder(),
-                labelText: 'Email',
-  
-              ),
-                          initialValue: email,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-
-                            return null;
-
-
-                          },
-                          onSaved: (value) {email = value.toString(); 
-                           setState(() =>isSendMsg = false);
-                          },
-                           onChanged: (value) async { email = value.toString();
-                          bool tmp = await userExist(email.trim().toLowerCase(),"email");
-                          bool tmp2 = false;
-                          
-                          final RegExp emailRegex = RegExp(
-                            r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                          );
-                          if (!emailRegex.hasMatch(value)) {
-                              tmp2 = true;
-                          }
-                 setState(() {  isLoadingEmail = true;
-                           isTagExistEmail = tmp || tmp2 ? true : false;
-                           isLoadingEmail = false;  
-
-                           });
-               },
-                        ) :  IntlPhoneField(           
-                decoration: InputDecoration(
-                errorText : errorCodeText,
-                                suffix: isLoadingPhone ? SizedBox( width: 18.0, height: 18.0,  child: CircularProgressIndicator(strokeWidth: 2.0,), ): isTagExistPhone && !isLoadingPhone ? Icon(Icons.close, color: Colors.red, size:18.0) : 
-                Icon(Icons.check, color: Colors.green, size:18.0),
-                border: OutlineInputBorder(),
-=======
               child: registerWithCorreo ? TextFormField(
        
   keyboardType: TextInputType.emailAddress,
@@ -464,43 +397,22 @@ controlsBuilder: (BuildContext context, ControlsDetails details) {
                 errorText : errorCodeText,
                                 suffix: isLoadingPhone ? SizedBox( width: 18.0, height: 18.0,  child: CircularProgressIndicator(strokeWidth: 2.0,), ): isTagExistPhone && !isLoadingPhone ? Icon(Icons.close, color: Colors.red, size:18.0) : 
                 Icon(Icons.check, color: Colors.green, size:18.0),
->>>>>>> 67350e2 (Muchos cambios)
                 labelText: 'PhoneNumber',
               ),
               keyboardType: TextInputType.phone,
               initialValue: _phoneNumber,
-<<<<<<< HEAD
-              // validator : (value) {
-
-              //   if ()
-
-              //   return "";
-              // } 
-              // ,
-              onSaved: (value) =>_phoneNumber = value!.completeNumber.toString() ,
-              onChanged: (value) async { value.completeNumber.toString();
-
-=======
               isTagExistPhone: isTagExistPhone,
               onSaved: (value) async {_phoneNumber = value!.completeNumber.toString();
->>>>>>> 67350e2 (Muchos cambios)
                bool tmp = await userExist(value.completeNumber.trim().toLowerCase(),"phone");
                 bool tmp2 = false;
   
               setState(() {isSendMsg = false;
-<<<<<<< HEAD
-=======
               if (!_formKey1.currentState!.validate()) tmp2 = true;
->>>>>>> 67350e2 (Muchos cambios)
                             isLoadingPhone = true;
                            isTagExistPhone = tmp || tmp2 ? true : false;
                            isLoadingPhone= false;  
                 });
             
-<<<<<<< HEAD
-               },
-         ),), TextButton(
-=======
               },
 
 
@@ -540,7 +452,6 @@ controlsBuilder: (BuildContext context, ControlsDetails details) {
 
 
          ),),TextButton(
->>>>>>> 67350e2 (Muchos cambios)
   onPressed: () {
     setState(() {registerWithCorreo = !registerWithCorreo; 
     if (registerWithCorreo) {_phoneNumber = ""; isTagExistPhone = false;} 

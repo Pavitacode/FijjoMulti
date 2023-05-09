@@ -279,7 +279,7 @@ Container(
                         20)), onPressed:
                             () {
 
-                   Navigator.push(
+                   Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const SignUpForm()),
     );
