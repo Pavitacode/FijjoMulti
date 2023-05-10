@@ -9,12 +9,15 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:http/http.dart' as http;
+import 'package:photo_manager/photo_manager.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
 import 'Functions/GetPosts.dart';
+import 'Functions/ImageGallery.dart';
 import 'Functions/Posts/postPagination.dart';
+import 'Functions/VideoPlayer.dart';
 
 
 
@@ -105,7 +108,7 @@ class _MyAppState extends State<MyApp> {
                 Navigator.of(context).pop();
               SharedPreferences prefs = await SharedPreferences.getInstance();
               await prefs.remove('userId');
-                 Navigator.push(
+                 Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => Login(),
@@ -268,17 +271,65 @@ class _BlogScreenState extends State<BlogsScreens> {
 
 void _pickFiles() async {
   // Muestra el visualizador de archivos personalizado
-  List<File> selectedFiles = await Navigator.push(
+  List<AssetEntity> selectedAssets = await Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => ImagePickerPage(),
     ),
   );
 
-  if (selectedFiles != null) {
+  if (selectedAssets != null) {
     // Aquí puedes procesar los archivos seleccionados
+    List<File> selectedFiles = [];
+    for (AssetEntity asset in selectedAssets) {
+      final file = await asset.file;
+      if (file != null) selectedFiles.add(file);
+    }
+    // Usa selectedFiles para mostrar los archivos seleccionados
+    if (selectedFiles.length == 1 && selectedAssets[0].type == AssetType.video) {
+      // Navega a la página del reproductor de video si se seleccionó un solo video
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VideoPlayerPage(file: selectedFiles[0]),
+        ),
+      );
+    } else {
+      // Verifica que los archivos de imagen seleccionados sean válidos
+      bool areImagesValid = true;
+      for (File file in selectedFiles) {
+        final isValid = await isValidImage(file);
+        if (!isValid) {
+          areImagesValid = false;
+          break;
+        }
+      }
+      if (areImagesValid) {
+        // Navega a la galería de imágenes si se seleccionaron varias imágenes válidas
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ImageGalleryPage(files: selectedFiles),
+          ),
+        );
+      } else {
+        // Muestra un mensaje de error si se seleccionaron imágenes no válidas
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Se seleccionaron imágenes no válidas')),
+        );
+      }
+    }
   } else {
     // El usuario canceló la selección de archivos
+  }
+}
+
+Future<bool> isValidImage(File file) async {
+  try {
+    final image = await decodeImageFromList(await file.readAsBytes());
+    return image != null;
+  } catch (e) {
+    return false;
   }
 }
 
@@ -305,9 +356,9 @@ void _pickFiles() async {
             builder: (context, value, child) {
               switch (value) {
                 case 0:
-                  return Center(child:  ElevatedButton(
+                  return Container(padding:const EdgeInsets.all(100),         alignment: Alignment.bottomCenter,           child:  ElevatedButton(
   onPressed: () {
-_pickFiles();
+ _pickFiles();
   } ,
   child: Text('Seleccionar archivos'),
 ));
