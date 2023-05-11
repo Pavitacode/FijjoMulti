@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'Functions/countries.dart';
 import 'Functions/phoneField.dart';
+
 
 class Login extends StatelessWidget {
   const Login({Key? key}) : super(key: key);
@@ -223,7 +223,8 @@ Container(
             padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
             child:
                 ElevatedButton(child:
-                    const Text('Login'),
+
+                    const Text('Login'), 
                       style: ElevatedButton.styleFrom(
                 primary: Colors.blue,
                 onPrimary: Colors.white,
@@ -277,7 +278,7 @@ Container(
                         20)), onPressed:
                             () {
 
-                   Navigator.push(
+                   Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const SignUpForm()),
     );

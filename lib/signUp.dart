@@ -11,7 +11,6 @@ import 'main.dart';
 
 
 
-
 class SignUpForm extends StatefulWidget {
   const SignUpForm({Key? key}) : super(key: key);
 
@@ -254,7 +253,11 @@ Stepper(
                         SharedPreferences prefs = await SharedPreferences.getInstance();
                             await prefs.setString('userId', id);
 
+<<<<<<< HEAD
                   Navigator.push(
+=======
+                  Navigator.pushReplacement(
+>>>>>>> new-branch
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => MyApp(data: data),
