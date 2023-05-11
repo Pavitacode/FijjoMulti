@@ -199,7 +199,7 @@ class _ImagePickerPageState extends State<ImagePickerPage>
               ],
             );
           },),),),
-      floatingActionButton:selectedImages.length >= 2 || isVideoSelectedd
+      floatingActionButton:selectedImages.length >= 2 || isVideoSelected
           ? FloatingActionButton.extended(onPressed:
           () {
           List<AssetEntity> selectedAssets =
