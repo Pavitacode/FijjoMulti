@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'Functions/GetPosts.dart';
 import 'Functions/VerificationCode.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -22,8 +23,7 @@ class SignUpForm extends StatefulWidget {
 
 class _SignUpFormState extends State<SignUpForm>  {
 
-
-
+  PostList postList = PostList();
   final _pageController = PageController();
   int _currentPage = 0;
   final TextEditingController _codeController = TextEditingController();
@@ -252,12 +252,8 @@ Stepper(
                   if (data[0]['isError'] == false){
                         SharedPreferences prefs = await SharedPreferences.getInstance();
                             await prefs.setString('userId', id);
-
-<<<<<<< HEAD
-                  Navigator.push(
-=======
+                postList.myString = id.toString();
                   Navigator.pushReplacement(
->>>>>>> new-branch
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => MyApp(data: data),

@@ -11,7 +11,13 @@ class ImageGalleryPage extends StatelessWidget {
       body: PageView.builder(
         itemCount: files.length,
         itemBuilder: (context, index) {
-          return Image.file(files[index]);
+          return Center(
+            child: SizedBox(
+              width: 700,
+              height: 700,
+              child: Image.file(files[index]),
+            ),
+          );
         },
       ),
     );

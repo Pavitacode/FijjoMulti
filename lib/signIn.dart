@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Functions/GetPosts.dart';
 import 'Functions/countries.dart';
 import 'Functions/phoneField.dart';
 
@@ -34,6 +35,7 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  PostList postList = PostList();
   TextEditingController nameController = TextEditingController();
   String password = '';
   String credential = '';
@@ -247,9 +249,10 @@ Container(
                   print(data[0]['isError']);
                   if (data[0]['isError'] == false){
                     SharedPreferences prefs = await SharedPreferences.getInstance();
-                    await prefs.setString('userId', id);
+                     await prefs.setString('userId', id);
+                    postList.myString = id.toString();
 
-                    Navigator.push(
+                    Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => MyApp(data: data),
@@ -278,7 +281,7 @@ Container(
                         20)), onPressed:
                             () {
 
-                   Navigator.pushReplacement(
+                   Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const SignUpForm()),
     );

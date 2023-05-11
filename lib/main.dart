@@ -15,13 +15,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 import 'Functions/GetPosts.dart';
-<<<<<<< HEAD
-import 'Functions/Posts/postPagination.dart';
-=======
 import 'Functions/ImageGallery.dart';
 import 'Functions/Posts/postPagination.dart';
 import 'Functions/VideoPlayer.dart';
->>>>>>> new-branch
 
 
 
@@ -272,40 +268,49 @@ class BlogsScreens extends StatefulWidget {
 }
 
 class _BlogScreenState extends State<BlogsScreens> {
+  final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
 
+  Future<bool> isValidImage(File file) async {
+  try {
+    final image = await decodeImageFromList(await file.readAsBytes());
+    return image != null;
+  } catch (e) {
+    return false;
+  }
+}
+
+
+    PostsPage? _postsPage;
+    @override
+  void initState() {
+    
+    super.initState();
+   _postsPage = PostsPage();
+  }
+
+
+final ValueNotifier<String> _currentCase0View = ValueNotifier<String>('home');
+   List<File> selectedFiles = [];
 void _pickFiles() async {
   // Muestra el visualizador de archivos personalizado
-<<<<<<< HEAD
-  List<File> selectedFiles = await Navigator.push(
-=======
   List<AssetEntity> selectedAssets = await Navigator.push(
->>>>>>> new-branch
     context,
     MaterialPageRoute(
       builder: (context) => ImagePickerPage(),
     ),
   );
 
-<<<<<<< HEAD
-  if (selectedFiles != null) {
-    // Aquí puedes procesar los archivos seleccionados
-=======
   if (selectedAssets != null) {
     // Aquí puedes procesar los archivos seleccionados
-    List<File> selectedFiles = [];
+ 
     for (AssetEntity asset in selectedAssets) {
       final file = await asset.file;
       if (file != null) selectedFiles.add(file);
     }
     // Usa selectedFiles para mostrar los archivos seleccionados
     if (selectedFiles.length == 1 && selectedAssets[0].type == AssetType.video) {
-      // Navega a la página del reproductor de video si se seleccionó un solo video
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => VideoPlayerPage(file: selectedFiles[0]),
-        ),
-      );
+      // Actualiza la vista actual a 'videoPlayer' si se seleccionó un solo video
+      _currentCase0View.value = 'videoPlayer';
     } else {
       // Verifica que los archivos de imagen seleccionados sean válidos
       bool areImagesValid = true;
@@ -317,13 +322,8 @@ void _pickFiles() async {
         }
       }
       if (areImagesValid) {
-        // Navega a la galería de imágenes si se seleccionaron varias imágenes válidas
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ImageGalleryPage(files: selectedFiles),
-          ),
-        );
+        // Actualiza la vista actual a 'imageGallery' si se seleccionaron varias imágenes válidas
+        _currentCase0View.value = 'imageGallery';
       } else {
         // Muestra un mensaje de error si se seleccionaron imágenes no válidas
         ScaffoldMessenger.of(context).showSnackBar(
@@ -331,80 +331,67 @@ void _pickFiles() async {
         );
       }
     }
->>>>>>> new-branch
   } else {
     // El usuario canceló la selección de archivos
   }
 }
 
-<<<<<<< HEAD
-=======
-Future<bool> isValidImage(File file) async {
-  try {
-    final image = await decodeImageFromList(await file.readAsBytes());
-    return image != null;
-  } catch (e) {
-    return false;
-  }
+@override
+Widget build(BuildContext context) {
+  return Stack(
+    children: [
+      Scaffold(
+        backgroundColor: Colors.black,
+        body: ValueListenableBuilder<int>(
+          valueListenable: _currentIndex,
+          builder: (context, value, child) {
+            switch (value) {
+              case 0:
+                return ValueListenableBuilder<String>(
+                  valueListenable: _currentCase0View,
+                  builder: (context, value, child) {
+                    switch (value) {
+                      case 'home':
+                        return Container(
+                          padding: const EdgeInsets.all(100),
+                          alignment: Alignment.bottomCenter,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _pickFiles();
+                            },
+                            child: Text('Seleccionar archivos'),
+                          ),
+                        );
+                      case 'videoPlayer':
+                        return VideoPlayerPage(file: selectedFiles[0]);
+                      case 'imageGallery':
+                        return ImageGalleryPage(files: selectedFiles);
+                      default:
+                        return Container();
+                    }
+                  },
+                );
+              case 1:
+                return Center(child: _postsPage);
+              case 2:
+                return Center(child: Text("GlobalBlog", style: TextStyle(color: Colors.white),));
+              default:
+                return Container();
+            }
+          },
+        ),
+      ),
+      Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: CustomBottomNavigationBar(
+          currentIndex: _currentIndex,
+        ),
+      ),
+    ],
+  );
 }
-
->>>>>>> new-branch
-  final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
-    PostsPage? _postsPage;
-    @override
-  void initState() {
-    
-    super.initState();
-   _postsPage = PostsPage();
-  }
-
-
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: Colors.black,
-          body:  ValueListenableBuilder<int>(
-            valueListenable: _currentIndex,
-            builder: (context, value, child) {
-              switch (value) {
-                case 0:
-<<<<<<< HEAD
-                  return Center(child:  ElevatedButton(
-  onPressed: () {
-_pickFiles();
-=======
-                  return Container(padding:const EdgeInsets.all(100),         alignment: Alignment.bottomCenter,           child:  ElevatedButton(
-  onPressed: () {
- _pickFiles();
->>>>>>> new-branch
-  } ,
-  child: Text('Seleccionar archivos'),
-));
-                case 1:
-                  return Center(child: _postsPage);
-                case 2:
-                  return Center(child: Text("GlobalBlog", style: TextStyle(color: Colors.white),));
-                default:
-                  return Container();
-              }
-            },
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: CustomBottomNavigationBar(
-            currentIndex: _currentIndex,
-          ),
-        ),
-      ],
-    );
-  }
   
 
 }
