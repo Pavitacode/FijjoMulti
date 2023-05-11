@@ -187,7 +187,7 @@ class _ImagePickerPageState extends State<ImagePickerPage>
                         Colors.white,),
                   ),
 
-                  if (asset.type == AssetType.video)
+              
               Positioned(
                 right: 90,
                 top: 100,
@@ -199,7 +199,7 @@ class _ImagePickerPageState extends State<ImagePickerPage>
               ],
             );
           },),),),
-      floatingActionButton:selectedImages.length >= 2 || isVideoSelectedisVideoSelected
+      floatingActionButton:selectedImages.length >= 2 || isVideoSelectedd
           ? FloatingActionButton.extended(onPressed:
           () {
           List<AssetEntity> selectedAssets =
