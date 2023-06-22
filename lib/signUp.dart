@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'Functions/GetPosts.dart';
-import 'Functions/VerificationCode.dart';
+import 'widgets/savedValues.dart';
+import 'widgets/VerificationCode.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Functions/countries.dart';
-import 'Functions/phoneField.dart';
+import 'widgets/countries.dart';
+import 'widgets/phoneField.dart';
 import 'main.dart';
 
 
@@ -23,7 +23,7 @@ class SignUpForm extends StatefulWidget {
 
 class _SignUpFormState extends State<SignUpForm>  {
 
-  PostList postList = PostList();
+  savedValues postList = savedValues();
   final _pageController = PageController();
   int _currentPage = 0;
   final TextEditingController _codeController = TextEditingController();

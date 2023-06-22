@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Functions/GetPosts.dart';
-import 'Functions/countries.dart';
-import 'Functions/phoneField.dart';
+import 'widgets/savedValues.dart';
+import 'widgets/countries.dart';
+import 'widgets/phoneField.dart';
 
 
 class Login extends StatelessWidget {
@@ -35,7 +35,7 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  PostList postList = PostList();
+  savedValues postList = savedValues();
   TextEditingController nameController = TextEditingController();
   String password = '';
   String credential = '';
